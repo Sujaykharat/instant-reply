@@ -44,7 +44,28 @@ const Index = () => {
         body: { message: input },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle rate limit and payment errors specifically
+        if (error.message?.includes('429')) {
+          toast({
+            title: "Rate Limit",
+            description: "Too many requests. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          setMessages((prev) => prev.slice(0, -1));
+          return;
+        }
+        if (error.message?.includes('402')) {
+          toast({
+            title: "Credits Required",
+            description: "Please add credits to your workspace in Settings > Usage.",
+            variant: "destructive",
+          });
+          setMessages((prev) => prev.slice(0, -1));
+          return;
+        }
+        throw error;
+      }
 
       // Replace thinking message with actual response
       setMessages((prev) => [
